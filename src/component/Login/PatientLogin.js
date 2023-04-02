@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Navber from '../Navber/Navber';
 import axios from 'axios';
+import fs from 'fs';
 
 
 
@@ -22,13 +23,12 @@ class PatientLogin extends Component {
   }
   onSubmit(e) {
     e.preventDefault()
-
+  
     const user = {
       email: this.state.email,
       password: this.state.password
     }
-
-
+  
     axios.post('/patient/login', {
       email: user.email,
       password: user.password
@@ -41,10 +41,17 @@ class PatientLogin extends Component {
       if(res !== "Email not found") {
         sessionStorage.setItem('userData', JSON.stringify(user));
         this.props.history.push('/patient/login/patient_home');
+  
+        // Write login attempt to file
+        const logMessage = `Login attempt by ${user.email} on ${new Date().toISOString()}\n`;
+        fs.appendFile('patientloginattempts', logMessage, err => {
+          if (err) console.log(err);
+        });
       } 
     }).catch(err => {
       console.log(err)
     })
+  
   }
 
   render() {
