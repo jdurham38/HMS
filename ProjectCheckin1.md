@@ -6,9 +6,9 @@
 
 **Completed Items**
 
-Security issue #1 (COMMIT_ID): Updated all current libraries used to the most updated version.
+Security issue #1 (COMMIT_ID: 72d27b695e155b82832ff6d698db833aaa7fa5fd): Updated all current libraries used to the most updated version.
 
-Security issue #2 (PULL_REQUEST_ID): Added logging in my code to output all login attempts made by patients into a txt file.
+Security issue #2 (COMMIT_ID: 78f1b7048b0482ceb1763db762b12970326195f3): Added logging in my code to output all login attempts made by patients into a txt file.
 
 
 **Work Completed**
