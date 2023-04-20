@@ -1,7 +1,18 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import Navber from '../Navber/Navber';
 import axios from 'axios';
+import { createLogger, transports } from 'winston';
 
+const winston = require('winston');
+
+const logger = createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: { service: 'employee-login-service' },
+  transports: [
+    new transports.File({ filename: 'employee-login.log' })
+  ]
+});
 
 class EmployeeLogin extends Component {
   constructor() {
@@ -19,6 +30,7 @@ class EmployeeLogin extends Component {
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value })
   }
+
   onSubmit(e) {
     e.preventDefault()
 
@@ -30,67 +42,87 @@ class EmployeeLogin extends Component {
     axios.post('/admin/login', {
       email: user.email,
       password: user.password
-    }).then(response => {
-      if(response.data === "Email not found") return "Email not found";
-      
-      sessionStorage.setItem('usertoken', response.data)
-      return response.data
-    }).then(res => {
-      if(res !== "Email not found") {
-        sessionStorage.setItem('userData', JSON.stringify(user));
-        this.props.history.push('/employee/login/employee_home');
-      } 
-    }).catch(err => {
-      console.log(err)
     })
+      .then(response => {
+        if(response.data === "Email not found") return "Email not found";
+        
+        sessionStorage.setItem('usertoken', response.data)
+        return response.data
+      })
+      .then(res => {
+        if(res !== "Email not found") {
+          sessionStorage.setItem('userData', JSON.stringify(user));
+          this.props.history.push('/employee/login/employee_home');
+          
+          // Log successful login attempt
+          logger.info({
+            message: 'Employee login',
+            email: user.email,
+            success: true,
+            timestamp: new Date().toISOString()
+          });
+        } 
+      })
+      .catch(err => {
+        console.log(err);
+        
+        // Log failed login attempt
+        logger.info({
+          message: 'Employee login',
+          email: user.email,
+          success: false,
+          error: err.message,
+          timestamp: new Date().toISOString()
+        });
+      });
   }
 
   render() {
     return (
       <div className="body">
-      <Navber/>
-      <div className="container my-5">
-        <div className="row">
-          <div className="col-md-6 mt-5 mx-auto">
-            <form noValidate onSubmit={this.onSubmit}>
-              <h1 className="h3 mb-3 mt-5 font-weight-normal btn-rg">Please sign in as Employee</h1>
-              <div className="form-group btn-rg">
-                <label htmlFor="email" >Email address</label>
-                <input
-                  type="email"
-                  className="form-control"
-                  name="email"
-                  placeholder="Enter email"
-                  value={this.state.email}
-                  onChange={this.onChange}
-                />
-              </div>
-              <div className="form-group btn-rg">
-                <label htmlFor="password">Password</label>
-                <input
-                  type="password"
-                  className="form-control"
-                  name="password"
-                  placeholder="Password"
-                 value={this.state.password}
-                  onChange={this.onChange}
-                />
-              </div>
-              <button
-                type="submit"
-                className="btn btn-lg btn-primary btn-block mb-5"
-              >
-                Sign in
-              </button>
-           </form>
+        <Navber/>
+        <div className="container my-5">
+          <div className="row">
+            <div className="col-md-6 mt-5 mx-auto">
+              <form noValidate onSubmit={this.onSubmit}>
+                <h1 className="h3 mb-3 mt-5 font-weight-normal btn-rg">Please sign in as Employee</h1>
+                <div className="form-group btn-rg">
+                  <label htmlFor="email" >Email address</label>
+                  <input
+                    type="email"
+                    className="form-control"
+                    name="email"
+                    placeholder="Enter email"
+                    value={this.state.email}
+                    onChange={this.onChange}
+                  />
+                </div>
+                <div className="form-group btn-rg">
+                  <label htmlFor="password">Password</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    name="password"
+                    placeholder="Password"
+                    value={this.state.password}
+                    onChange={this.onChange}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn btn-lg btn-primary btn-block mb-5"
+                >
+                  Sign in
+                </button>
+              </form>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="mb-5 mt-5">v</div>
-      
+        
+        <div className="mb-5 mt-5">v</div>
       </div>  
     )
   }
 }
+
 export default EmployeeLogin;

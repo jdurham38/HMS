@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
 import jwt_decode from 'jwt-decode';
+import { createLogger, transports } from 'winston';
+
+const logger = createLogger({
+  transports: [new transports.Console()]
+});
 
 class Profile extends Component {
   constructor() {
@@ -9,21 +14,22 @@ class Profile extends Component {
       last_name: '',
       email: '',
       address: '',
-      phone_no : '',
+      phone_no: '',
       errors: {}
     }
   }
 
   componentDidMount() {
-    const token = localStorage.usertoken
-    const decoded = jwt_decode(token)
+    const token = localStorage.usertoken;
+    const decoded = jwt_decode(token);
     this.setState({
       first_name: decoded.first_name,
       last_name: decoded.last_name,
       email: decoded.email,
       address: decoded.address,
-      phone_no : decoded.phone_no
-    })
+      phone_no: decoded.phone_no
+    });
+    logger.info(`User with email: ${decoded.email} viewed their profile`);
   }
 
   render() {
@@ -48,13 +54,13 @@ class Profile extends Component {
                 <td>{this.state.email}</td>
               </tr>
               <tr>
-              <td>Address</td>
-              <td>{this.state.address}</td>
-            </tr>
-            <tr>
-            <td>Phone number</td>
+                <td>Address</td>
+                <td>{this.state.address}</td>
+              </tr>
+              <tr>
+                <td>Phone number</td>
                 <td>{this.state.phone_no}</td>
-            </tr>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -63,4 +69,4 @@ class Profile extends Component {
   }
 }
 
-export default Profile
+export default Profile;
